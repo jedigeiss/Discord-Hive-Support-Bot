@@ -1,0 +1,8 @@
+coinmarketcap==5.0.3
+pycoingecko==1.4.1
+forecastpy==1.1.0
+beem==0.24.20
+discord.py==1.6.0
+pytz==2021.1
+discord==1.0.1
+secrets==1.0.2

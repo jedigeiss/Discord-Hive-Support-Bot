@@ -197,8 +197,18 @@ def get_delegations():
     
     sorted_delegator_list = sorted(delegator_list, key=lambda k: k['vests'], reverse=True)
     return sorted_delegator_list
-    
-        
+
+# Function to claim rewards if existant // claimreward("dach-support")
+def claimreward(account):
+    account = Account(account)
+    reward = account.balances["rewards"]
+    if len(reward) == 3 and reward[0].amount + reward[1].amount + reward[2].amount == 0:
+        return
+    elif len(reward) == 2 and reward[0].amount + reward[1].amount:
+        return
+
+    account.claim_reward_balance()
+    return reward        
 
 
             

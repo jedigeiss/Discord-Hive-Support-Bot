@@ -379,9 +379,9 @@ async def showarticles(ctx):
     await ctx.send(embed=embed)
 
 # Claim Rewards every 2 hours
-@tasks.loop(seconds=7200.0)
-async def claim():
-    claimreward("dach-support")
+#@tasks.loop(seconds=7200.0)
+#async def claim():
+#    claimreward("dach-support")
     
     
 # The function that runs in a loop every 2nd minute and checks for new registrations to the bot

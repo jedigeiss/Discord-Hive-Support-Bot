@@ -1,0 +1,35 @@
+[General]
+# Discord Token(Live Bot Environment)
+# token =
+
+# Discord Token(Test Bot Environment)
+token = 
+
+# The Command Prefix the bot will listen on
+bot_prefix = !
+
+# The Discord ID of the Bot's Admin to send personal messages
+admin_id = 
+
+
+# Discord Guild ID and Role to be distributed by the Bot on the Test Environment
+guild_id =
+role_to_distribute =
+
+# Discord Guild ID  and Role to be distributed by the Bot on the LIVE Environemnt
+# guild_id =
+# role_to_distribute =
+
+# Hive specific configuration items
+[Hive]
+# Account on the Hive Blockchain the Bot will work under
+bot_account = 
+# The starting Block number when the bot is set live
+starting_block_number = 
+# The password to open the wallet in beempy (be careful with this!) 
+password =
+
+# Configuration items specific to the database
+[DB]
+# The path and name of the DB 
+db_name ="article.db"

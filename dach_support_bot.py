@@ -3,7 +3,7 @@
 """
 Created on Sat 24.01.2020
 This is version 0.8 of the new and improved Dach-Bot
-last update: 22.04.2021
+last update: 08.05.2021
 
 """
 import datetime
@@ -27,13 +27,14 @@ locale.setlocale(locale.LC_ALL, '')
 
 # read the config file and set the correct parameters
 config = configparser.ConfigParser()
-config.read('dachbot.ini')
+config.read('dach_support_bot.ini')
 admin_id = config["General"]["admin_id"]
 guild_id = int(config["General"]["guild_id"])
 discord_role_name = config["General"]["role_to_distribute"]
 block_number_starting = int(config["Hive"]["starting_block_number"])
 BOT_PREFIX = config["General"]["bot_prefix"]
 TOKEN = config["General"]["token"]
+HIVE_PW = config["Hive"]["password"]
 
 client = Bot(command_prefix=BOT_PREFIX, intents=intents)
 
@@ -379,9 +380,10 @@ async def showarticles(ctx):
     await ctx.send(embed=embed)
 
 # Claim Rewards every 2 hours
-#@tasks.loop(seconds=7200.0)
-#async def claim():
-#    claimreward("dach-support")
+@tasks.loop(seconds=7200.0)
+async def claim():
+    reward = claimreward("dach-support", HIVE_PW)
+    print(reward)
     
     
 # The function that runs in a loop every 2nd minute and checks for new registrations to the bot

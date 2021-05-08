@@ -48,7 +48,7 @@ def basic_info(account_name, level):
     profile_data = account.profile
     data = account.json()
 
-    if len(profile_data) > 0:
+    if "profile_image" in profile_data.keys():
         pic_url = profile_data["profile_image"]
     else:
         picdata = data["posting_json_metadata"]
@@ -199,7 +199,8 @@ def get_delegations():
     return sorted_delegator_list
 
 # Function to claim rewards if existant // claimreward("dach-support")
-def claimreward(account):
+def claimreward(account, password):
+    hive.wallet.unlock(pwd=password)
     account = Account(account)
     reward = account.balances["rewards"]
     if len(reward) == 3 and reward[0].amount + reward[1].amount + reward[2].amount == 0:

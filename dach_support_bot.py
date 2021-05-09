@@ -23,7 +23,7 @@ import db_connection as db
 # setting locales and intents for discord
 intents = discord.Intents.default()
 intents.members = True
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, 'de_DE@euro')
 
 # read the config file and set the correct parameters
 config = configparser.ConfigParser()
@@ -380,7 +380,7 @@ async def showarticles(ctx):
     await ctx.send(embed=embed)
 
 # Claim Rewards every 2 hours
-@tasks.loop(seconds=7200.0)
+@tasks.loop(seconds=14400.0)
 async def claim():
     reward = claimreward("dach-support", HIVE_PW)
     print(reward)

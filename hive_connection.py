@@ -200,17 +200,24 @@ def get_delegations():
 
 # Function to claim rewards if existant // claimreward("dach-support")
 def claimreward(account, password):
-    account = Account(account)
+    return_data = {}
+    account = Account(account,blockchain_instance=hive)
     reward = account.balances["rewards"]
     if len(reward) == 3 and reward[0].amount + reward[1].amount + reward[2].amount == 0:
-        return
+        return_data["status"] = 0
+        
     elif len(reward) == 2 and reward[0].amount + reward[1].amount:
-        return
-
-    hive.wallet.unlock(pwd=password)
-    account.claim_reward_balance()
-    hive.wallet.lock()
-    return reward        
+        return_data["status"] = 0
+    else:
+        hive.wallet.unlock(pwd=password)
+        account.claim_reward_balance()
+        hive.wallet.lock()
+        return_data["status"] = 1
+        return_data["Hive"] = reward[0].amount
+        return_data["HBD"] = reward[1].amount
+        return_data["HivePower"] = round(hive.vests_to_hp(reward[2].amount),2)
+    
+    return return_data
 
 
             

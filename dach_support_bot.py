@@ -45,6 +45,7 @@ async def on_ready():
     print("with the ID: %s running on %s" % (client.user.id, client.user.name))
     
     automated_checkreg.start()
+    claim.start()
 
 # print kudos and version of the bot
 @client.command(description="Informationen über den Versionierungsstand des Bots",
@@ -379,12 +380,15 @@ async def showarticles(ctx):
         
     await ctx.send(embed=embed)
 
-# Claim Rewards every 2 hours
+# Claim Rewards every 4 hours
 @tasks.loop(seconds=14400.0)
 async def claim():
-    reward = claimreward("dach-support", HIVE_PW)
-    print(reward)
-    
+    reward_data = hive.claimreward("dach-support", HIVE_PW)
+    admin = await client.fetch_user(admin_id)
+    if reward_data["status"] == 0:
+        await admin.send("Es sind keine Rewards zum Abholen vorhanden")
+    else:
+        await admin.send("Folgende Rewards wurden abgeholt, %s Hive, %s HBD und %s HivePower" % (reward_data["Hive"], reward_data["HBD"], reward_data["HivePower"]))
     
 # The function that runs in a loop every 2nd minute and checks for new registrations to the bot
 @tasks.loop(seconds=120.0)
@@ -415,7 +419,6 @@ async def automated_checkreg():
                 aliases=["prevvotes", "previousvotes", "pv"])
 async def lastvotes(ctx):
     data = db.get_voted_articles()
-    print(data)
     embed = discord.Embed(title="Liste der 5 zuletzt gevoteten Artikel", description="", color=0x228B22)
     if data[0] == -1:
         embed.add_field(name="Artikel:", value= "%s" % "derzeit keine gevoteten Artikel in der Datenbank")

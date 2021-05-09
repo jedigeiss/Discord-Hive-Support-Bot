@@ -117,10 +117,14 @@ def get_next_vote():
     c.execute("SELECT title, author, votes, permlink from articles WHERE voted = ?", ("No",))
     data = c.fetchone()
     c.close()
-    return_data["title"] = data[0]
-    return_data["author"] = data[1]
-    return_data["votes"] = data[2]  
-    return_data["permlink"] = data[3]
+    if data is None:
+        return_data["status"] = 0
+    else:
+        return_data["status"] = 1   
+        return_data["title"] = data[0]
+        return_data["author"] = data[1]
+        return_data["votes"] = data[2]  
+        return_data["permlink"] = data[3]
     return return_data
 
 
@@ -144,13 +148,14 @@ def get_article(url):
 
 def get_all_articles():
     c = db.cursor()
-    #return_data = {}
+    return_data = {}
     c.execute("SELECT * FROM articles where voted =?",("No",))
     result = c.fetchall()
     if len(result) == 0:
         c.close()
-        result[0] = -1
-        return result
+        data = []
+        data.append(-1)
+        return data
     c.close()
     return result
 

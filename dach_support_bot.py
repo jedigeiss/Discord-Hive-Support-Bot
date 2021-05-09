@@ -338,14 +338,14 @@ async def nextvote(ctx):
 
     data = db.get_next_vote()
     recharge = hive.get_recharge_time()
-    basepct = 50 + (data["votes"] -1) *10
     
     recharge_hours = recharge.seconds // 3600
     recharge_minutes = (recharge.seconds % 3600) // 60
 
-    if data == []:
-        await ctx.send("Keine Artikel zum Voten gefunden")
+    if data["status"] == 0:
+        await ctx.send("Keinen Artikel zum Voten gefunden -- Geh mit ?upvote direkt einen einstellen!")
     else:
+        basepct = 50 + (data["votes"] -1) *10
         embed = discord.Embed(title="Nächster Vote", description="", color=0x228B22)
         embed.add_field(name="Autor", value="[%s](%s)" % (str(data["author"]),"https://peakd.com/@"+str(data["author"])), inline=True)
         embed.add_field(name="Artikel", value="[%s](%s)" % (str(data["title"]),"https://peakd.com/"+str(data["permlink"])), inline=True)
@@ -363,10 +363,10 @@ async def nextvote(ctx):
                 aliases=["Showarticles", "showart"])
 async def showarticles(ctx):
     data = db.get_all_articles()
-    
+    #print(data)
     embed = discord.Embed(title="Liste aller offenen Artikel", description="", color=0x228B22)
     if data[0] == -1:
-        embed.add_field(name="Artikel:", value= "%s" % "derzeit keine Artikel zum Voten in der Datenbank")
+        embed.add_field(name="Artikel:", value= "%s" % "Keine Artikel in der Datenbank - Stell mit ?upvote gleich einen ein!")
     else:
         for article in data:
             basepct = 50 + (article[2] -1) *10

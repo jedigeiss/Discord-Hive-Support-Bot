@@ -16,7 +16,7 @@ admin_id =
 guild_id =
 role_to_distribute =
 
-# Discord Guild ID  and Role to be distributed by the Bot on the LIVE Environemnt
+# Discord Guild ID  and Role to be distributed by the Bot on the LIVE Environment
 # guild_id =
 # role_to_distribute =
 

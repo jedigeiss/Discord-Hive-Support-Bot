@@ -89,7 +89,8 @@ def basic_info(account_name, level):
     hive_price = hive_price["hive"]["eur"]
     hbd_price = cg.get_price(ids="hive_dollar", vs_currencies="EUR")
     hbd_price = hbd_price["hive_dollar"]["eur"]
-    
+    vote_value = round(account.get_voting_value(),2)
+
     #calculation of account worth in Euro for the Hive account
     acc_worth = round(own_sp * hive_price,2) + round(hive_amount * hive_price,2) + round(hbd_amount * hbd_price,2)
 
@@ -108,6 +109,7 @@ def basic_info(account_name, level):
         return_data["recharge_vp"] = recharge_vp
         return_data["worth"] = round(acc_worth,2)
         return_data["hive_price"] = hive_price
+        return_data["vote_value"] = vote_value
 
         return return_data
     else:
@@ -133,6 +135,7 @@ def basic_info(account_name, level):
         return_data["received_sp"] = round(int(received_sp), 2)
         return_data["worth"] = round(acc_worth,2)
         return_data["hive_price"] = hive_price
+        return_data["vote_value"] = vote_value
         
         return return_data
 

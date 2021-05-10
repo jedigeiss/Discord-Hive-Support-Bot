@@ -91,6 +91,7 @@ async def info(ctx, account_name):
         embed.add_field(name="Letzte Aktion auf Hive", value=datetime.datetime.strftime( data["latestactivity"], "%d.%m.%Y %H:%M"))
         embed.add_field(name="Wert in Euro", value="%s Euro" % data["worth"])
         embed.add_field(name="Hive Kurs", value="%s EUR/Hive" % round(data["hive_price"],3))
+        embed.add_field(name="Vote-Wert bei 100%", value="%s HTU" % data["vote_value"])
         
         embed.set_thumbnail(url=data["pic_url"])
         embed.timestamp=datetime.datetime.utcnow()
@@ -121,7 +122,8 @@ async def longinfo(ctx, account_name):
         embed.add_field(name="Aufgeladen auf 100% VP", value=datetime.datetime.strftime( data["recharge_vp"], "%d.%m.%Y %H:%M" ))
         embed.add_field(name="Wert in Euro", value="%s Euro" % data["worth"])    
         embed.add_field(name="Hive Kurs", value="%s EUR/Hive" % round(data["hive_price"],3))
-
+        embed.add_field(name="Vote-Wert bei 100%", value="%s HTU" % data["vote_value"])
+        
         embed.set_thumbnail(url=data["pic_url"])
         embed.timestamp=datetime.datetime.utcnow()
         embed.set_footer(text="frisch von der Blockchain & Coingecko")
@@ -145,7 +147,7 @@ async def status(ctx):
         embed.add_field(name="Votingpower", value="%s Prozent" % data["vp"])
         embed.add_field(name="Aufgeladen auf 100% VP", value=datetime.datetime.strftime( data["recharge_vp"], "%d.%m.%Y %H:%M" ))
         embed.add_field(name="Letzte Aktion auf Hive", value=datetime.datetime.strftime( data["latestactivity"], "%d.%m.%Y %H:%M"))
-        
+        embed.add_field(name="Vote-Wert bei 100%", value="%s HTU" % data["vote_value"])
         embed.set_thumbnail(url=data["pic_url"])
         embed.timestamp=datetime.datetime.utcnow()
         embed.set_footer(text="frisch von der Blockchain")

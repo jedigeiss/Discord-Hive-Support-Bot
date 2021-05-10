@@ -391,7 +391,18 @@ async def claim():
         await admin.send("Es sind keine Rewards zum Abholen vorhanden")
     else:
         await admin.send("Folgende Rewards wurden abgeholt, %s Hive, %s HBD und %s HivePower" % (reward_data["Hive"], reward_data["HBD"], reward_data["HivePower"]))
-    
+
+# Check Bagdes every 4 hours
+@tasks.loop(seconds=14400.0)
+async def badge():
+    reward_data = hive.badge_main(HIVE_PW)
+    admin = await client.fetch_user(admin_id)
+    if reward_data["status"] == 0:
+        #Zu viel spam? // await admin.send("Keine neuen Badges verliehen")
+    else:
+        for user, value in reward_data.items():
+            await admin.send("Der user %s bekommt die Badge fuer %s HivePower" % (user, value[0]))
+        
 # The function that runs in a loop every 2nd minute and checks for new registrations to the bot
 @tasks.loop(seconds=180.0)
 async def automated_checkreg():

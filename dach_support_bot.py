@@ -52,7 +52,7 @@ async def on_ready():
                 brief="Info über Version des Bots",
                 aliases=["ver", "Ver","v"])
 async def version(ctx, *arg):
-    await ctx.send("D-A-CH Bot Version 0.9, brought to you by jedigeiss\n**Thanks to:** louis88, rivalzzz, felixxx and Bennybär")
+    await ctx.send("D-A-CH Bot Version 0.9, brought to you by jedigeiss\n**Thanks to:** arek, louis88, rivalzzz, felixxx and Bennybär")
 
 # Get weather info from Openweathermap.org and displaying this in Discord
 @client.command(description="Anzeige des Wetters und der Vorhersage für die nächsten Tage, Daten von Openweathermap.org",
@@ -391,7 +391,7 @@ async def claim():
         await admin.send("Folgende Rewards wurden abgeholt, %s Hive, %s HBD und %s HivePower" % (reward_data["Hive"], reward_data["HBD"], reward_data["HivePower"]))
     
 # The function that runs in a loop every 2nd minute and checks for new registrations to the bot
-@tasks.loop(seconds=120.0)
+@tasks.loop(seconds=180.0)
 async def automated_checkreg():
     result = ""
     users_to_check = db.get_users_reg()

@@ -260,65 +260,46 @@ def badge_main(password):
     return_data = {}
     for user,vests in delegated_vests_in.items():
         hp = f"{hive.vests_to_hp(vests):.0f}"
+    #    print(user,':',hp)
         delegated_list_hp[user] = hp
         #10000+
         if (float(hp) >= 10000):        
-            if user not in following10000:  
-                hive.wallet.unlock(pwd=password)
+            if user not in following10000:           
                 badge10000.follow(user)
-                hive.wallet.lock()
                 time.sleep(stime)
-                return_data["user"] = user
-                return_data["hp"] = float(hp)
-                return_data["url"] = url10000
+                return_data[user] = [float(hp), url10000]
             else:
                 following10000.remove(user)
         #2500+
         elif (float(hp) >= 2500):        
             if user not in following2500:
-                hive.wallet.unlock(pwd=password)
                 badge2500.follow(user)
-                hive.wallet.lock()
                 time.sleep(stime)
-                return_data["user"] = user
-                return_data["hp"] = float(hp)
-                return_data["url"] = url2500
+                return_data[user] = [float(hp), url2500]
             else:
                 following2500.remove(user)
         #500+
         elif (float(hp) >= 500):
             if user not in following500:
-                hive.wallet.unlock(pwd=password)
                 badge500.follow(user)
-                hive.wallet.lock()
                 time.sleep(stime)
-                return_data["user"] = user
-                return_data["hp"] = float(hp)
-                return_data["url"] = url500
+                return_data[user] = [float(hp), url500]
             else:
                 following500.remove(user)
         #100+
         elif (float(hp) >= 100):
-            if user not in following100:
-                hive.wallet.unlock(pwd=password)
+            if user not in following100:    
                 badge100.follow(user)
-                hive.wallet.lock()
                 time.sleep(stime)
-                return_data["user"] = user
-                return_data["hp"] = float(hp)
-                return_data["url"] = url100
+                return_data[user] = [float(hp), url100]
             else:
                 following100.remove(user)
         #10+
         elif (float(hp) >= 10):
             if user not in following10:
-                hive.wallet.unlock(pwd=password)
                 badge10.follow(user)
-                hive.wallet.lock()
                 time.sleep(stime)
-                return_data["user"] = user
-                return_data["hp"] = float(hp)
-                return_data["url"] = url10
+                return_data[user] = [float(hp), url10]
             else:
                 following10.remove(user)
 

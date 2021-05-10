@@ -7,6 +7,8 @@ from beem.comment import Comment
 from beem.nodelist import NodeList
 #from beem.blockchain import Blockchain
 import datetime
+import time
+
 from pytz import timezone
 from pycoingecko import CoinGeckoAPI
 import db_connection as db
@@ -219,5 +221,132 @@ def claimreward(account, password):
     
     return return_data
 
+def badge_main(password):
+    stime = 4
 
-            
+    #USED ACCS
+    account = Account("dach-support", blockchain_instance=hive)
+    badge10 = Account("badge-413801", blockchain_instance=hive)
+    badge100 = Account("badge-413802", blockchain_instance=hive)
+    badge500 = Account("badge-413803", blockchain_instance=hive)
+    badge2500 = Account("badge-413804", blockchain_instance=hive)
+    badge10000 = Account("badge-413805", blockchain_instance=hive)
+    
+    
+    #GET FOLLOWING ACCOUNTS
+    following10 = badge10.get_following()
+    following100 = badge100.get_following()
+    following500 = badge500.get_following()
+    following2500 = badge2500.get_following()
+    following10000 = badge10000.get_following()
+    
+    #BADGES URLS
+    url10 = "https://files.peakd.com/file/peakd-hive/badge-413801/dach_dele_10_FINAL.png"
+    url100 = "https://files.peakd.com/file/peakd-hive/badge-413802/dach_dele_100_FINAL.png"
+    url500 = "https://files.peakd.com/file/peakd-hive/badge-413803/dach_dele_500_FINAL.png"
+    url2500 = "https://files.peakd.com/file/peakd-hive/badge-413804/dach_dele_2500_FINAL.png"
+    url10000 = "https://files.peakd.com/file/peakd-hive/badge-413805/dach_dele_10000_FINAL.png"
+    
+    #GET DELEGATED LIST
+    ops = []
+    delegated_list_hp = dict()
+    for op in account.history(only_ops=["delegate_vesting_shares"]):
+        ops.append(op)
+    acc_info = AccountSnapshot(account, account_history=ops, steem_instance=hive)
+    acc_info.build()
+    data = acc_info.get_data()
+    delegated_vests_in = data["delegated_vests_in"]
+
+    # FOLLOW LOOP
+    return_data = {}
+    for user,vests in delegated_vests_in.items():
+        hp = f"{hive.vests_to_hp(vests):.0f}"
+        delegated_list_hp[user] = hp
+        #10000+
+        if (float(hp) >= 10000):        
+            if user not in following10000:  
+                hive.wallet.unlock(pwd=password)
+                badge10000.follow(user)
+                hive.wallet.lock()
+                time.sleep(stime)
+                return_data[user] = [float(hp), url10000]
+            else:
+                following10000.remove(user)
+        #2500+
+        elif (float(hp) >= 2500):        
+            if user not in following2500:
+                hive.wallet.unlock(pwd=password)
+                badge2500.follow(user)
+                hive.wallet.lock()
+                time.sleep(stime)
+                return_data[user] = [float(hp), url2500]
+            else:
+                following2500.remove(user)
+        #500+
+        elif (float(hp) >= 500):
+            if user not in following500:
+                hive.wallet.unlock(pwd=password)
+                badge500.follow(user)
+                hive.wallet.lock()
+                time.sleep(stime)
+                return_data[user] = [float(hp), url500]
+            else:
+                following500.remove(user)
+        #100+
+        elif (float(hp) >= 100):
+            if user not in following100:
+                hive.wallet.unlock(pwd=password)
+                badge100.follow(user)
+                hive.wallet.lock()
+                time.sleep(stime)
+                return_data[user] = [float(hp), url100]
+            else:
+                following100.remove(user)
+        #10+
+        elif (float(hp) >= 10):
+            if user not in following10:
+                hive.wallet.unlock(pwd=password)
+                badge10.follow(user)
+                hive.wallet.lock()
+                time.sleep(stime)
+                return_data[user] = [float(hp), url10]
+            else:
+                following10.remove(user)
+
+    # FILTER LOOP
+    bagdes_filter = ['dach-support']
+    for user in bagdes_filter:
+        if user in following10000:
+            following10000.remove(user)
+        if user in following2500:
+            following2500.remove(user)
+        if user in following500:
+            following500.remove(user)
+        if user in following100:
+            following100.remove(user)
+        if user in following10:
+            following10.remove(user)
+                       
+    # UNFOLLOW LOOP
+    for user in following10000:
+        hive.wallet.unlock(pwd=password)
+        badge10000.unfollow(user)
+        hive.wallet.lock()
+    for user in following2500:
+        hive.wallet.unlock(pwd=password)
+        badge2500.unfollow(user)
+        hive.wallet.lock()
+    for user in following500:
+        hive.wallet.unlock(pwd=password)
+        badge500.unfollow(user)
+        hive.wallet.lock()
+    for user in following100:
+        hive.wallet.unlock(pwd=password)
+        badge100.unfollow(user)
+        hive.wallet.lock()
+    for user in following10:
+        hive.wallet.unlock(pwd=password)
+        badge10.unfollow(user)
+        hive.wallet.lock()
+
+    return return_data

@@ -156,28 +156,37 @@ def check_post(post_url):
     return return_data
 
 # Check the registrations to the bot and send back infos
-def check_hive_reg(userlist, block_number_starting):
+def check_hive_reg(userlist):
     account = Account("dach-support")
     result = []
-    #block_number_current = chain.get_current_block_num()
-    for user in userlist:
-        user = list(user)
-        discordid = user[0]
-        discorduser = user[1]
-        reguser = user[2]
-        regtoken = user[3]
-        # check all transactions and search for the user and token information, filter only by transfer
-        for x in account.history(start=block_number_starting, only_ops=["transfer"]):
-            hiveuser = x["from"]
-            hivetoken = x["memo"]
-            if reguser == hiveuser and regtoken == hivetoken:
-                data = db.validate_user(discorduser)
-                if data == 0:
-                    listuser = [discorduser, reguser, "validated", discordid]
-                    result.append(listuser)
-                else: 
-                    listuser = [discorduser, reguser, "db not changed", discordid]
-                    result.append(listuser)
+    max_op_count = account.virtual_op_count()
+    op_count = db.get_op_count()["virtualops"]
+    if max_op_count > op_count:
+
+        for user in userlist:
+            user = list(user)
+            discordid = user[0]
+            discorduser = user[1]
+            reguser = user[2]
+            regtoken = user[3]
+            # check all transactions and search for the user and token information, filter only by transfer
+            for x in account.history(start=op_count, stop=max_op_count, only_ops=["transfer"], use_block_num=False):
+                hiveuser = x["from"]
+                hivetoken = x["memo"]
+                if reguser == hiveuser and regtoken == hivetoken:
+                    data = db.validate_user(discorduser)
+                    if data == 0:
+                        listuser = [discorduser, reguser, "validated", discordid]
+                        result.append(listuser)
+                    else: 
+                        listuser = [discorduser, reguser, "db not changed", discordid]
+                        result.append(listuser)
+            else:
+                result.append(-1)
+        db.set_op_count(max_op_count)
+    else: 
+        result.append(0)
+    print(result)
     return result
 
 # Function to get and sort delegations out of the blockchain and send it back

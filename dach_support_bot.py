@@ -398,13 +398,13 @@ async def badge():
     reward_data = hive.badge_main(HIVE_PW)
     admin = await client.fetch_user(admin_id)
     if reward_data["status"] == 0:
-        #Zu viel spam? // await admin.send("Keine neuen Badges verliehen")
+        await admin.send("Keine neuen Badges verliehen")
     else:
         for user, value in reward_data.items():
             await admin.send("Der user %s bekommt die Badge fuer %s HivePower" % (user, value[0]))
         
 # The function that runs in a loop every 2nd minute and checks for new registrations to the bot
-@tasks.loop(seconds=180.0)
+@tasks.loop(seconds=120.0)
 async def automated_checkreg():
     result = ""
     users_to_check = db.get_users_reg()
@@ -413,19 +413,22 @@ async def automated_checkreg():
     if users_to_check == -1:
         await admin.send("Es sind keine offenen Registrierungen vorhanden")
     else:
-        result = hive.check_hive_reg(users_to_check, block_number_starting)
-        for user in result:
-            if user[2] == "validated":
-                await admin.send("Token Match!\n**DiscordUser: %s** ist jetzt mit **Hiveaccount: %s** registriert" %(user[0], user[1]))
-                discorduser = await guild.fetch_member(user[3])
-                # discorduser = await client.fetch_user(user[3])
-                await discorduser.send("Deine Registrierung mit dem **D-A-CH Support Bot** ist abgeschlossen!\nDu bist jetzt mit **Hiveaccount: %s registriert**\n"
-                                       "Die Rolle *%s* wurde dir zugeteilt" % (user[1], "Hive Community Member"))
-                role = get(discorduser.guild.roles, name="Hive Community Member")
-                await discorduser.add_roles(role)
-            else:
-                await admin.send("Kein Token Match!\nDiscordUser: %s konnte nicht mit Hiveaccount: %s verifiziert werden" %(user[0], user[1]))
-
+        result = hive.check_hive_reg(users_to_check)
+        if result[0] == 0:
+            await admin.send("Keine neuen Transaktionen, nichts zu überprüfen")
+        elif result[0] == -1:
+            await admin.send("Keine Matches gefunden, setze Op Count hoch")
+        else:
+            for user in result:
+                if user[2] == "validated":
+                    await admin.send("Token Match!\n**DiscordUser: %s** ist jetzt mit **Hiveaccount: %s** registriert" %(user[0], user[1]))
+                    discorduser = await guild.fetch_member(user[3])
+                    # discorduser = await client.fetch_user(user[3])
+                    await discorduser.send("Deine Registrierung mit dem **D-A-CH Support Bot** ist abgeschlossen!\nDu bist jetzt mit **Hiveaccount: %s registriert**\n"
+                                        "Die Rolle *%s* wurde dir zugeteilt" % (user[1], "Hive Community Member"))
+                    role = get(discorduser.guild.roles, name="Hive Community Member")
+                    await discorduser.add_roles(role)
+                
 # Shows the last 5 voted posts
 @client.command(description="Anzeige der letzten 5 gevoteten Artikel",
                 brief="letzte 10 gevotete Artikel",

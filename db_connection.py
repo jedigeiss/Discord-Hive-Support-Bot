@@ -3,7 +3,7 @@ import secrets
 import datetime
 
 # initializing the db that will hold the articles to be voted
-db = sqlite3.connect("articles.db", detect_types=sqlite3.PARSE_DECLTYPES) 
+db = sqlite3.connect("articles.db", detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) 
 
 # get a Chuck Norris joke out of the db and send it back
 def get_chuck():
@@ -134,7 +134,7 @@ def get_article(url):
     return_data = {}
     c.execute("SELECT votes, voted FROM articles where permlink = ?", (url,))
     result = c.fetchone()
-    if result == None:
+    if result is None:
         return_data["code"] = 0
         return_data["voted"] = "No"
 
@@ -171,3 +171,22 @@ def get_voted_articles():
         return result
     c.close()
     return result
+
+def get_op_count():
+    c = db.cursor()
+    return_data = {}
+    c.execute("SELECT virtualops FROM config")
+    result = c.fetchone()
+    if result is None:
+        return_data["status"] = 0
+    else:
+        return_data["status"] = 1
+    c.close()
+    return_data["virtualops"] = result[0]
+    return return_data
+
+def set_op_count(op_count):
+    c = db.cursor()
+    c.execute("UPDATE config SET virtualops = ?",(op_count, ))
+    db.commit()
+    c.close()    

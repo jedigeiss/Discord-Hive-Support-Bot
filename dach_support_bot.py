@@ -414,11 +414,7 @@ async def automated_checkreg():
         await admin.send("Es sind keine offenen Registrierungen vorhanden")
     else:
         result = hive.check_hive_reg(users_to_check)
-        if result[0] == 0:
-            await admin.send("Keine neuen Transaktionen, nichts zu überprüfen")
-        elif result[0] == -1:
-            await admin.send("Keine Matches gefunden, setze Op Count hoch")
-        else:
+        if result[0] != 0 and result[0] != -1:
             for user in result:
                 if user[2] == "validated":
                     await admin.send("Token Match!\n**DiscordUser: %s** ist jetzt mit **Hiveaccount: %s** registriert" %(user[0], user[1]))

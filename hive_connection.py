@@ -186,7 +186,6 @@ def check_hive_reg(userlist):
         db.set_op_count(max_op_count)
     else: 
         result.append(0)
-    print(result)
     return result
 
 # Function to get and sort delegations out of the blockchain and send it back

@@ -197,18 +197,14 @@ def get_delegations():
         delegator_list = []
         for row in account.history(start=op_count, stop=max_op_count, use_block_num=False, only_ops=["delegate_vesting_shares"]):
             overwritten = 0
-            if len(delegator_list) == 0:
-                delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "from":row["timestamp"], "to":""})
+            timestamp = datetime.datetime.strptime(row["timestamp"], "%Y-%m-%dT%H:%M:%S")
+            tester = next((item for item in delegator_list if item["delegator"] == row["delegator"] and item["to"] == ""),None)
+            if tester is None:
+                delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "from":timestamp, "to":""})
             else:
-                for d in delegator_list:
-                    if d["delegator"] == row["delegator"]:
-                        d["vests"] = row["vesting_shares"]["amount"]
-                        d["from"] = row["timestamp"]
-                        overwritten = 1
-                if overwritten == 0:
-                    delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "from":row["timestamp"], "to":""})
+                tester["to"] = timestamp
+                delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "from":timestamp, "to":""})
 
-        print(delegator_list)
         db.delegations_update(delegator_list)
         db.set_op_count("delegation", max_op_count)
     
@@ -217,7 +213,6 @@ def get_delegations():
     for item in data:
         item["vests"] = round(hive.vests_to_hp(float(item["vests"])*10**-6),2)
     
-    #sorted_delegator_list = sorted(delegator_list, key=lambda k: k['vests'], reverse=True)
     return data
 
 # Function to claim rewards if existant // claimreward("dach-support")

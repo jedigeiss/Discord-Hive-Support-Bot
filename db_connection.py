@@ -199,32 +199,34 @@ def set_op_count(reason, op_count):
 
 def delegations_update(delegator_list):
     c = db.cursor()
-    db_delegations =[]
-    c.execute("SELECT delegator from delegations")
+    db_delegations = []
+    c.execute("SELECT delegator, vests, time, until FROM delegations WHERE until is null")
     result = c.fetchall()
     for item in result:
         db_delegations.append(item[0])
     if len(db_delegations) != 0:
         for row in delegator_list:
             if row["delegator"] in db_delegations:
-                c.execute("UPDATE delegations SET vests = ?, time = ? WHERE delegator = ?",(row["vests"],row["from"],row["delegator"]))
+                c.execute("UPDATE delegations SET until = ? WHERE delegator = ?",(row["from"],row["delegator"]))
+                datarow = (row["delegator"],row["vests"],row["from"], row["to"])
+                c.execute("INSERT INTO delegations (delegator, vests, time, until) VALUES(?,?,?,?)", datarow)
                 db.commit()
             else:
-                datarow = (row["delegator"],row["vests"],row["from"])
-                c.execute("INSERT INTO delegations (delegator, vests, time) VALUES(?,?,?)", datarow)
+                datarow = (row["delegator"],row["vests"],row["from"], row["to"])
+                c.execute("INSERT INTO delegations (delegator, vests, time, until) VALUES(?,?,?,?)", datarow)
                 db.commit() 
         
     else:
         for row in delegator_list:
-            datarow = (row["delegator"],row["vests"],row["from"])
-            c.execute("INSERT INTO delegations (delegator, vests, time) VALUES(?,?,?)", datarow)
+            datarow = (row["delegator"],row["vests"],row["from"],row["to"])
+            c.execute("INSERT INTO delegations (delegator, vests, time,until) VALUES(?,?,?,?)", datarow)
             db.commit()
     c.close()
 
 def get_delegators():
     c = db.cursor()
     return_data = []
-    c.execute("SELECT delegator, vests from delegations WHERE NOT vests = 0 ORDER BY vests DESC")
+    c.execute("SELECT delegator, vests from delegations WHERE vests != 0 AND until = '' ORDER BY vests DESC")
     result = c.fetchall()
     for item in result:
         transform = {}

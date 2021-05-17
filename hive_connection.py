@@ -160,7 +160,7 @@ def check_hive_reg(userlist):
     account = Account("dach-support")
     result = []
     max_op_count = account.virtual_op_count()
-    op_count = db.get_op_count()["virtualops"]
+    op_count = db.get_op_count("registration")["ops"]
     if max_op_count > op_count:
 
         for user in userlist:
@@ -183,7 +183,7 @@ def check_hive_reg(userlist):
                         result.append(listuser)
             else:
                 result.append(-1)
-        db.set_op_count(max_op_count)
+        db.set_op_count("registration", max_op_count)
     else: 
         result.append(0)
     return result
@@ -191,25 +191,34 @@ def check_hive_reg(userlist):
 # Function to get and sort delegations out of the blockchain and send it back
 def get_delegations():
     account = Account("dach-support")
-    # max_op_count = account.virtual_op_count()
-    delegator_list = []
-    for row in account.history(start=52000000, use_block_num=True, only_ops=["delegate_vesting_shares"]):
-        overwritten = 0
-        if len(delegator_list) == 0:
-            delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "date":row["timestamp"]})
-        else:
-            for d in delegator_list:
-                if d["delegator"] == row["delegator"]:
-                    d["vests"] = row["vesting_shares"]["amount"]
-                    overwritten = 1
-            if overwritten == 0:
-                delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "date":row["timestamp"]})
+    max_op_count = account.virtual_op_count()
+    op_count = db.get_op_count("delegation")["ops"]
+    if max_op_count > op_count:
+        delegator_list = []
+        for row in account.history(start=op_count, stop=max_op_count, use_block_num=False, only_ops=["delegate_vesting_shares"]):
+            overwritten = 0
+            if len(delegator_list) == 0:
+                delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "from":row["timestamp"], "to":""})
+            else:
+                for d in delegator_list:
+                    if d["delegator"] == row["delegator"]:
+                        d["vests"] = row["vesting_shares"]["amount"]
+                        d["from"] = row["timestamp"]
+                        overwritten = 1
+                if overwritten == 0:
+                    delegator_list.append({"delegator": row["delegator"], "vests":row["vesting_shares"]["amount"], "from":row["timestamp"], "to":""})
 
-    for item in delegator_list:
+        print(delegator_list)
+        db.delegations_update(delegator_list)
+        db.set_op_count("delegation", max_op_count)
+    
+    data = db.get_delegators()
+
+    for item in data:
         item["vests"] = round(hive.vests_to_hp(float(item["vests"])*10**-6),2)
     
-    sorted_delegator_list = sorted(delegator_list, key=lambda k: k['vests'], reverse=True)
-    return sorted_delegator_list
+    #sorted_delegator_list = sorted(delegator_list, key=lambda k: k['vests'], reverse=True)
+    return data
 
 # Function to claim rewards if existant // claimreward("dach-support")
 def claimreward(account, password):

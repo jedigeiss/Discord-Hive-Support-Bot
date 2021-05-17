@@ -458,8 +458,7 @@ async def delegations(ctx):
     else:
         for row in data:
             #date = datetime.datetime.strptime(row["date"], "%Y-%m-%dT%H:%M:%S")
-
-            embed.add_field(name="Name & Delegation:", value= "[%s](%s) - *%s HP*" % (str(row["delegator"]),"https://peakd.com/@"+str(row["delegator"]),str(row["vests"])),inline=False)
+            embed.add_field(name="Delegator", value= "[%s](%s) - *%s HP*" % (str(row["delegator"]),"https://peakd.com/@"+str(row["delegator"]),str(row["vests"])),inline=True)
             #embed.add_field(name="Prozent des Votes", value="%s Prozent" % article[3], inline=True)
     embed.timestamp=datetime.datetime.utcnow()
     embed.set_footer(text="frisch vom D-A-CH Bot & der Hive Blockchain")

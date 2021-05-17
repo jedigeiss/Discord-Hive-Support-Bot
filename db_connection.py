@@ -172,21 +172,66 @@ def get_voted_articles():
     c.close()
     return result
 
-def get_op_count():
+def get_op_count(reason):
     c = db.cursor()
     return_data = {}
-    c.execute("SELECT virtualops FROM config")
+    if reason == "registration":
+        c.execute("SELECT virtualops FROM config")
+    elif reason == "delegation":
+        c.execute("SELECT deleops FROM config")
     result = c.fetchone()
     if result is None:
         return_data["status"] = 0
     else:
         return_data["status"] = 1
     c.close()
-    return_data["virtualops"] = result[0]
+    return_data["ops"] = result[0]
     return return_data
 
-def set_op_count(op_count):
+def set_op_count(reason, op_count):
     c = db.cursor()
-    c.execute("UPDATE config SET virtualops = ?",(op_count, ))
+    if reason == "registration":
+        c.execute("UPDATE config SET virtualops = ?",(op_count, ))
+    if reason == "delegation":
+        c.execute("UPDATE config SET deleops = ?",(op_count, ))
     db.commit()
     c.close()    
+
+def delegations_update(delegator_list):
+    c = db.cursor()
+    db_delegations =[]
+    c.execute("SELECT delegator from delegations")
+    result = c.fetchall()
+    for item in result:
+        db_delegations.append(item[0])
+    if len(db_delegations) != 0:
+        for row in delegator_list:
+            if row["delegator"] in db_delegations:
+                c.execute("UPDATE delegations SET vests = ?, time = ? WHERE delegator = ?",(row["vests"],row["from"],row["delegator"]))
+                db.commit()
+            else:
+                datarow = (row["delegator"],row["vests"],row["from"])
+                c.execute("INSERT INTO delegations (delegator, vests, time) VALUES(?,?,?)", datarow)
+                db.commit() 
+        
+    else:
+        for row in delegator_list:
+            datarow = (row["delegator"],row["vests"],row["from"])
+            c.execute("INSERT INTO delegations (delegator, vests, time) VALUES(?,?,?)", datarow)
+            db.commit()
+    c.close()
+
+def get_delegators():
+    c = db.cursor()
+    return_data = []
+    c.execute("SELECT delegator, vests from delegations WHERE NOT vests = 0 ORDER BY vests DESC")
+    result = c.fetchall()
+    for item in result:
+        transform = {}
+        transform["delegator"] = item[0]
+        transform["vests"] = item[1]
+        return_data.append(transform)
+        
+    #print(return_data)
+    c.close()
+    return return_data

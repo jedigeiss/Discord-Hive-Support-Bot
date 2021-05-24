@@ -414,7 +414,7 @@ async def automated_checkreg():
         await admin.send("Es sind keine offenen Registrierungen vorhanden")
     else:
         result = hive.check_hive_reg(users_to_check)
-        if result[0] != 0 and result[0] != -1:
+        if result[0] != 0:
             for user in result:
                 if user[2] == "validated":
                     await admin.send("Token Match!\n**DiscordUser: %s** ist jetzt mit **Hiveaccount: %s** registriert" %(user[0], user[1]))
@@ -423,6 +423,7 @@ async def automated_checkreg():
                     await discorduser.send("Deine Registrierung mit dem **D-A-CH Support Bot** ist abgeschlossen!\nDu bist jetzt mit **Hiveaccount: %s registriert**\n"
                                         "Die Rolle *%s* wurde dir zugeteilt" % (user[1], "Hive Community Member"))
                     role = get(discorduser.guild.roles, name="Hive Community Member")
+                    print(role)
                     await discorduser.add_roles(role)
                 
 # Shows the last 5 voted posts

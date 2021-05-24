@@ -245,6 +245,5 @@ def get_delegators():
         transform["vests"] = item[1]
         return_data.append(transform)
         
-    #print(return_data)
     c.close()
     return return_data

@@ -1,6 +1,7 @@
 import sqlite3
 import secrets
 import datetime
+from sqlite3.dbapi2 import Cursor
 
 # initializing the db that will hold the articles to be voted
 db = sqlite3.connect("articles.db", detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) 
@@ -74,6 +75,16 @@ def validate_user(username):
     db.commit()
     c.close()
     return 0
+
+# deletes a user out of the database
+def delete_user(username):
+    c = db.cursor()
+    c.execute("DELETE FROM users WHERE hivename = ?", (username,))
+    db.commit()
+    return_value = c.rowcount
+    c.close()
+    return return_value
+
 
 # inserts a post into the list to be voted in the database of the bot
 def insert_article_db(discord_name, post, title, author):
@@ -200,7 +211,7 @@ def set_op_count(reason, op_count):
 def delegations_update(delegator_list):
     c = db.cursor()
     db_delegations = []
-    c.execute("SELECT delegator, vests, time, until FROM delegations WHERE until is null")
+    c.execute("SELECT delegator, vests, time, until FROM delegations WHERE until = ''")
     result = c.fetchall()
     for item in result:
         db_delegations.append(item[0])
@@ -226,7 +237,7 @@ def delegations_update(delegator_list):
 def get_delegators():
     c = db.cursor()
     return_data = []
-    c.execute("SELECT delegator, vests from delegations WHERE vests != 0 AND until = '' ORDER BY vests DESC")
+    c.execute("SELECT delegator, vests from delegations WHERE vests != 0 AND until = 0 ORDER BY vests DESC")
     result = c.fetchall()
     for item in result:
         transform = {}

@@ -465,6 +465,18 @@ async def delegations(ctx):
         
     await ctx.send(embed=embed)
 
+@client.command(description="ADMIN -- Löschen eines Users",
+                brief="ADMIN -- Userdel",
+                aliases=["del", "Delete"])
+@has_role("Admin")
+async def delete(ctx, username):
+    result = db.delete_user(username)
+    if result > 0:
+        await ctx.send("User %s -- gelöscht" % username)
+    else:
+        await ctx.send("Kein User mit Name %s gefunden" % username)
+
+
 @upvote.error
 async def upvote_error(ctx, error):
     if isinstance(error, commands.errors.MissingRole):

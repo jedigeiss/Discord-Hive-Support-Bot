@@ -466,6 +466,15 @@ async def delegations(ctx):
         
     await ctx.send(embed=embed)
 
+# distribute curation rewards to delegators 
+@client.command(description="Verteilen der Curation rewards an die Delegatoren",
+                brief="Verteilen der Curation",
+                aliases=["distri"])
+@has_role("Admin")
+async def distribute(ctx, date):
+    data = hive.distribute_curations(date)
+
+
 @client.command(description="ADMIN -- Löschen eines Users",
                 brief="ADMIN -- Userdel",
                 aliases=["del", "Delete"])

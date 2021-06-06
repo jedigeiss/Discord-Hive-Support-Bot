@@ -5,10 +5,10 @@ from beem.account import Account
 from beem import Hive
 from beem.comment import Comment
 from beem.nodelist import NodeList
-#from beem.blockchain import Blockchain
+from beem.blockchain import Blockchain
 import datetime
 import time
-
+import pprint
 from pytz import timezone
 from pycoingecko import CoinGeckoAPI
 import db_connection as db
@@ -20,14 +20,14 @@ nodelist = NodeList()
 nodelist.update_nodes()
 
 hive = Hive(node=nodelist.get_hive_nodes())
-#chain = Blockchain(blockchain_instance=hive)
+chain = Blockchain(blockchain_instance=hive)
 cg = CoinGeckoAPI()
 
 
 
 # get the recharge time of the bot and send it back 
 def get_recharge_time():
-    account= Account("dach-support")
+    account= Account("dach-support", blockchain_instance=hive)
     recharge_timedelta = account.get_recharge_timedelta(starting_voting_power=account.vp)
     recharge_vp = datetime.datetime.now() + recharge_timedelta
     recharge_vp = recharge_vp.astimezone(timezone("Europe/Berlin"))
@@ -40,7 +40,7 @@ def basic_info(account_name, level):
 
     today = datetime.datetime.today()
     try:
-        account = Account(account_name)
+        account = Account(account_name,blockchain_instance=hive)
     except AccountDoesNotExistsException:
         return_data["error"] = 1
         return return_data
@@ -143,7 +143,9 @@ def basic_info(account_name, level):
 def check_post(post_url):
     return_data = {}
     try:
-        article = Comment(post_url)
+        if hive.is_connected() is False:
+            hive.rpc.next()
+        article = Comment(post_url, blockchain_instance=hive)
         return_data["age"] = article.time_elapsed()
         return_data["main_post"] = article.is_main_post()
         return_data["category"] = article.category
@@ -157,7 +159,7 @@ def check_post(post_url):
 
 # Check the registrations to the bot and send back infos
 def check_hive_reg(userlist):
-    account = Account("dach-support")
+    account = Account("dach-support",blockchain_instance=hive)
     result = []
     max_op_count = account.virtual_op_count()
     op_count = db.get_op_count("registration")["ops"]
@@ -187,12 +189,11 @@ def check_hive_reg(userlist):
         db.set_op_count("registration", max_op_count)
     else: 
         result.append(0)
-    print(result)
     return result
 
 # Function to get and sort delegations out of the blockchain and send it back
 def get_delegations():
-    account = Account("dach-support")
+    account = Account("dach-support",blockchain_instance=hive)
     max_op_count = account.virtual_op_count()
     op_count = db.get_op_count("delegation")["ops"]
     if max_op_count > op_count:
@@ -237,6 +238,43 @@ def claimreward(account, password):
         return_data["HivePower"] = round(hive.vests_to_hp(reward[2].amount),2)
     
     return return_data
+
+def distribute_curations(date):
+    # get block_num
+    start_block = chain.get_estimated_block_num(datetime.datetime.strptime(date, "%Y-%m-%d"))
+    end_block = start_block + 28800
+    # get curation rewards on date
+    curation_rewards = 0
+    total_delegations = 0
+    account = Account("dach-support", blockchain_instance=hive)
+    for h in account.history(start=start_block, stop=end_block, use_block_num=True, only_ops=["curation_reward"]):
+        curation_rewards += int(h["reward"]["amount"])
+    
+    #get delegators valid for payout on that date
+    delegators = db.get_delegators_bydate(date)
+    for row in delegators:
+        row[1] = round(hive.vests_to_hp(row[1]*10**-6),6)
+        total_delegations += row[1]
+    for row in delegators:
+        percentage = row[1] / total_delegations *100
+        row.append(round(percentage,3))
+    
+    
+    for row in delegators:
+        coins = hive.vests_to_hp(row[2] /100 * (curation_rewards *10 ** -6))
+        row.append(round(coins,6))
+
+    print("Curation gesamt: %s " % round(hive.vests_to_hp(curation_rewards*10 **-6),6))
+    print("Gesamte Delegationen: %s" % round(total_delegations,6))
+    for row in delegators:
+        print("%s hat %s HP delegiert (%s Prozent an der Gesamtdelegation)-> %s Hive erwirtschaftet" % (row[0], row[1], row[2],row[3]))
+    #pprint.pprint(delegators)
+
+
+
+
+
+
 
 def badge_main(password):
     stime = 4

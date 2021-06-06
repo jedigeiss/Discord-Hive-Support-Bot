@@ -4,7 +4,8 @@ import datetime
 from sqlite3.dbapi2 import Cursor
 
 # initializing the db that will hold the articles to be voted
-db = sqlite3.connect("articles.db", detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) 
+#db = sqlite3.connect("articles.db", detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES) 
+db = sqlite3.connect("articles.db") 
 
 # get a Chuck Norris joke out of the db and send it back
 def get_chuck():
@@ -247,3 +248,20 @@ def get_delegators():
         
     c.close()
     return return_data
+
+def get_delegators_bydate(date):
+    c = db.cursor()
+    return_data = []
+    #select valid delegators that have an end date set
+    c.execute("SELECT delegator, vests from delegations WHERE vests > 0 AND time < ? AND until > ? ", (date,date))
+    result = c.fetchall()
+    for row in result:
+        #payload = [row[0], row[1]]
+        return_data.append(list(row))
+    #select valid delegators that have an indefinite end date set
+    c.execute("SELECT delegator, vests from delegations WHERE vests > 0 AND time < ? AND until = 0 ", (date,))
+    result = c.fetchall()
+    for row in result:
+        return_data.append(list(row))
+    return return_data
+

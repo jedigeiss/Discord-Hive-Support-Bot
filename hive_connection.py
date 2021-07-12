@@ -142,7 +142,7 @@ def basic_info(account_name, level):
 # Check post given to Bot and send back information
 def check_post(post_url):
     return_data = {}
-    print(post_url)
+    #print(post_url)
     try:
         if hive.is_connected() is False:
             hive.rpc.next()

@@ -167,8 +167,8 @@ async def kurs(ctx, coin):
     if data["error"] == -1:
         await ctx.send("Fehler - %s wurde nicht gefunden" % coin)
     else:
-            
-        embed = discord.Embed(title="Preis Übersicht :", description=coin, color=0x00ff00)
+        file = discord.File("pricechart.png")    
+        embed = discord.Embed(title="Preis Übersicht :", description=coin.title(), color=0x00ff00)
         embed.add_field(name="Preis USD", value=locale.format_string("%g $",data["priceusd"], grouping=True, monetary=True))
         #embed.add_field(name="Preis EUR", value="%.3f" % float(data["priceeur"]))
         #embed.add_field(name="Preis BTC", value="%s" % data["pricebtc"])
@@ -181,8 +181,11 @@ async def kurs(ctx, coin):
         #embed.add_field(name="Tage bis zum Meetup", value="%s" % daystomeetup, inline=True)
         #embed.set_thumbnail(url=picurl)
         embed.timestamp=datetime.datetime.utcnow()
+        embed.set_image(url="attachment://pricechart.png")
+
         embed.set_footer(text="fresh from the DACH-BOT and CoinGecko")
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, file=file)
+        
 
 
 @client.command(description="Super Gags von und mit Chuck Norris",

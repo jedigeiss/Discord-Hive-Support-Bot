@@ -90,6 +90,7 @@ def basic_info(account_name, level):
     hbd_price = cg.get_price(ids="hive_dollar", vs_currencies="EUR")
     hbd_price = hbd_price["hive_dollar"]["eur"]
     vote_value = round(account.get_voting_value(),2)
+    #vote_value = 0
 
     #calculation of account worth in Euro for the Hive account
     acc_worth = round(own_sp * hive_price,2) + round(hive_amount * hive_price,2) + round(hbd_amount * hbd_price,2)

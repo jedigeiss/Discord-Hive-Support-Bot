@@ -60,4 +60,5 @@ def coin_graphic(coin):
     #fig.autofmt_xdate()
     # save the graph in the standard location for the calling function
     plt.savefig("pricechart.png")
+    plt.close()
 
